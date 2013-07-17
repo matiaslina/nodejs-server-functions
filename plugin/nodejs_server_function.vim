@@ -44,6 +44,10 @@ function! s:exec_exists(e)
     endif
 endfunction
 
+function! s:highlight_error (var)
+    echohl WarningMsg | echo a:var | echohl None
+endfunction
+
 function! NodeSetApp(text)
     let s:node_server = getcwd() .'/'. a:text
 endfunction
@@ -55,24 +59,32 @@ function! NodeStartServer ()
                 if s:exec_exists ("npm")
                     call system('npm start &')
                 else
-                    echoerr "npm isn't installed in your system!"
+                    call s:highlight_error ("npm isn't installed in your system!")
                 endif
             elseif g:NodejsRunType == "node-dev"
                 if s:exec_exists ("node-dev")
-                    call system('node-dev ' . s:node_server . '&')
+                    if s:node_server != ""
+                        call system('node-dev ' . s:node_server . '&')
+                    else
+                        call s:highlight_error( "You need to set the server file with :NodejsSetFile")
+                    endif
                 else
-                    echoerr "node-dev isn't installed in your system!"
+                    call s:highlight_error( "node-dev isn't installed in your system!")
                 endif
             else
-                call system('node ' . s:node_server . '&')
+                if s:node_server != ""
+                    call system('node ' . s:node_server . '&')
+                else
+                    call s:highlight_error( "You need to set the server file with :NodejsSetFile")
+                endif
+                let s:server_running = 1
+                echo "Node.js Server started"
             endif
-            let s:server_running = 1
-            echo "Node.js Server started"
         else
-            echoerr "node.js isn't installed in your system!"
+            call s:highlight_error("node.js isn't installed in your system!")
         endif
     else
-        echoerr "Node.js Server already Running"
+        call s:highlight_error("Node.js Server already Running")
     endif
 endfunction
 
@@ -87,10 +99,10 @@ function! NodeStopServer ()
             let s:server_running = 0
             echo "Node.js Server stopped"
         else
-            echoerr "node.js isn't installed in your system!"
+            call s:highlight_error( "node.js isn't installed in your system!")
         endif
     else
-        echoerr "There's no node.js server running"
+        call s:highlight_error( "There's no node.js server running")
     endif
 endfunction
 
