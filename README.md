@@ -15,6 +15,22 @@ cd ~/.vim/bundle
 git clone https://github.com/matiaslina/nodejs-server-functions
 ```
 
+## Options
+
+you can change how you run the server. There are three different possibilities for this:
+
+* **npm:** Uses npm (start/stop) internally. This can be useful if you do not want to put the file on the server every time you start vim
+* **node-dev:** Uses [node-dev](https://github.com/fgnass/node-dev) to run the server. It's required to install it with the `-g` option. (i.e. `npm install -g node-dev`)
+* **bash:** This is the default option. simply runs the node.js server in a bash.
+
+You can change this in your `.vimrc` with:
+
+```
+let g:NodejsRunType = "bash" | " this is the default
+let g:NodejsRunType = "npm"
+let g:NodejsRunType = "node-dev"
+```
+
 ## How to use
 
 #### Functions
@@ -24,7 +40,7 @@ git clone https://github.com/matiaslina/nodejs-server-functions
 * `:NodejsStop`
 * `:NodejsRestart`
 
-First of all you need to set the file that is going to run the server (be /home/user/nodejs-app/app.js the file that runs the server)
+First of all you need to set the file that is going to run the server (be /home/user/nodejs-app/app.js the file that runs the server). This is not needed if you set to run the server with `npm`.
 
 ```
 :cd /home/user/nodejs-app
