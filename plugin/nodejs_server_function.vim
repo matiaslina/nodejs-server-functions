@@ -9,6 +9,17 @@
 "               Version 2, see the LICENSE file for more details
 " ===========================================================================
 
+" Initialization
+function! s:set (var, default)
+    if !exists(a:var)
+        if type(a:default)
+            exe 'let' a:var '=' string(a:default)
+        else
+            exe 'let' a:var '=' a:default
+        endif
+    endif
+endfunction
+
 " NodejsRunType it's a field that allows to change the behaviour of the
 " script. It can be setted to:
 "
@@ -17,10 +28,21 @@
 "   * NodejsRunType = "bash"     => use bash to Start/Stop the server.
 "
 " By default it will be setted to bash.
-let g:NodejsRunType = "node-dev"
 
+call s:set('g:NodejsRunType', "bash")
+
+" Some variables
 let s:node_server = ""
 let s:server_running = 0
+
+" Auxiliar functions
+function! s:exec_exists(e)
+    if executable(a:e)
+        return 1
+    else
+        return 0
+    endif
+endfunction
 
 function! NodeSetApp(text)
     let s:node_server = getcwd() .'/'. a:text
@@ -28,31 +50,47 @@ endfunction
 
 function! NodeStartServer ()
     if !s:server_running
-        if g:NodejsRunType == "npm"
-            call system('npm start &')
-        elseif g:NodejsRunType == "node-dev"
-            call system('node-dev ' . s:node_server . '&')
+        if s:exec_exists ("node")
+            if g:NodejsRunType == "npm"
+                if s:exec_exists ("npm")
+                    call system('npm start &')
+                else
+                    echoerr "npm isn't installed in your system!"
+                endif
+            elseif g:NodejsRunType == "node-dev"
+                if s:exec_exists ("node-dev")
+                    call system('node-dev ' . s:node_server . '&')
+                else
+                    echoerr "node-dev isn't installed in your system!"
+                endif
+            else
+                call system('node ' . s:node_server . '&')
+            endif
+            let s:server_running = 1
+            echo "Node.js Server started"
         else
-            call system('node ' . s:node_server . '&')
+            echoerr "node.js isn't installed in your system!"
         endif
-        let s:server_running = 1
-        echo "Node.js Server started"
     else
-        echo "Node.js Server already Running"
+        echoerr "Node.js Server already Running"
     endif
 endfunction
 
 function! NodeStopServer ()
     if s:server_running
-        if g:NodejsRunType == "npm"
-            call system('npm stop &')
+        if s:exec_exists ("node")
+            if g:NodejsRunType == "npm"
+                call system('npm stop &')
+            else
+                call system('pkill node')
+            endif
+            let s:server_running = 0
+            echo "Node.js Server stopped"
         else
-            call system('pkill node')
+            echoerr "node.js isn't installed in your system!"
         endif
-        let s:server_running = 0
-        echo "Node.js Server stopped"
     else
-        echo "There's no node.js server running"
+        echoerr "There's no node.js server running"
     endif
 endfunction
 
