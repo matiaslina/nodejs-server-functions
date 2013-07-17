@@ -9,6 +9,16 @@
 "               Version 2, see the LICENSE file for more details
 " ===========================================================================
 
+" NodejsRunType it's a field that allows to change the behaviour of the
+" script. It can be setted to:
+"
+"   * NodejsRunType = "npm"      => uses npm scripts
+"   * NodejsRunType = "node-dev" => uses node-dev script
+"   * NodejsRunType = "bash"     => use bash to Start/Stop the server.
+"
+" By default it will be setted to bash.
+let g:NodejsRunType = "node-dev"
+
 let s:node_server = ""
 let s:server_running = 0
 
@@ -18,9 +28,15 @@ endfunction
 
 function! NodeStartServer ()
     if !s:server_running
-        let i = system('node ' . s:node_server . '&')
-        echo "Node.js Server started"
+        if g:NodejsRunType == "npm"
+            call system('npm start &')
+        elseif g:NodejsRunType == "node-dev"
+            call system('node-dev ' . s:node_server . '&')
+        else
+            call system('node ' . s:node_server . '&')
+        endif
         let s:server_running = 1
+        echo "Node.js Server started"
     else
         echo "Node.js Server already Running"
     endif
@@ -28,9 +44,13 @@ endfunction
 
 function! NodeStopServer ()
     if s:server_running
-        call system('pkill node')
-        echo "Node.js Server stopped"
+        if g:NodejsRunType == "npm"
+            call system('npm stop &')
+        else
+            call system('pkill node')
+        endif
         let s:server_running = 0
+        echo "Node.js Server stopped"
     else
         echo "There's no node.js server running"
     endif
