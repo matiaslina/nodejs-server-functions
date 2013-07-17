@@ -29,7 +29,7 @@ endfunction
 function! NodeStopServer ()
     if s:server_running
         call system('pkill node')
-        echo "Node.js Server stoped"
+        echo "Node.js Server stopped"
         let s:server_running = 0
     else
         echo "There's no node.js server running"
@@ -44,7 +44,7 @@ function! NodeRestartServer()
     endif
 endfunction
 
-command! -nargs=1 -complete=dir NodejsSetFile call NodeSetApp ("<args>") 
+command! -nargs=1 -complete=file NodejsSetFile call NodeSetApp ("<args>") 
 command! -nargs=0 NodejsStart call NodeStartServer ()
 command! -nargs=0 NodejsStop call NodeStopServer ()
 command! -nargs=0 NodejsRestart call NodeRestartServer ()
